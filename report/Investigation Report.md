@@ -45,6 +45,8 @@ A private cloud infrastructure operated by a small company was compromised throu
 - User-Agent header: "Fuzz Faster U Fool v2.1.0-dev"
 - Format per question hint: `nmap@7.80` style → `ffuf@2.1.0`
 
+<img width="1168" height="602" alt="image" src="https://github.com/user-attachments/assets/6dcb34bd-6388-44cf-a001-3154c59e0e1d" />
+
 **Analysis:**
 The attacker used a web fuzzer (ffuf) to discover web endpoints on the exposed server. This tool is designed to identify hidden directories, files, and parameters through brute-force scanning. The presence of ffuf indicates active reconnaissance and directory enumeration attacks against the web server.
 
@@ -62,6 +64,9 @@ The attacker used a web fuzzer (ffuf) to discover web endpoints on the exposed s
 - HTTP request filtering by host header
 - Statistics: HTTP request count by host
 - Highest frequency: cloud.vantage.tech (42 requests)
+
+<img width="1168" height="567" alt="image" src="https://github.com/user-attachments/assets/3ee8bff9-eaa8-4e5e-b5b9-3d8706ddfbc8" />
+
 
 **Analysis:**
 After web server fuzzing, the attacker identified `cloud.vantage.tech` as the target subdomain. This subdomain hosted the exposed dashboard and became the entry point for subsequent attacks. The high request frequency (42 requests) indicates focused reconnaissance on this specific service.
@@ -92,6 +97,15 @@ The discovery of this subdomain represents successful reconnaissance. The attack
   - Packet #21091: Successful login attempt
   - Packet #21103: HTTP 302 Found (redirect to /dashboard/)
 
+<img width="1168" height="566" alt="image" src="https://github.com/user-attachments/assets/5115e1b6-7094-42b2-91fd-13503cfb97cb" />
+
+<img width="1172" height="547" alt="image" src="https://github.com/user-attachments/assets/a510a95b-5ce4-41f4-a931-93a32ebaa21e" />
+
+<img width="1168" height="562" alt="image" src="https://github.com/user-attachments/assets/a50c5869-092f-4d87-9b3a-9af5c3cf202a" />
+
+<img width="1172" height="566" alt="image" src="https://github.com/user-attachments/assets/8f1ae4f5-4d1a-4a43-b0ff-799662fbf80e" />
+
+
 **Analysis:**
 The attacker conducted a brute-force attack against the dashboard authentication mechanism. After 3 failed credential attempts, the 4th attempt succeeded, indicating either:
 - Credential recovery from other sources
@@ -114,6 +128,10 @@ The 302 redirect to `/dashboard/` confirms successful authentication and dashboa
 - HTTP GET /dashboard/project/api_access/openrc/
 - Frame timestamp: 2025-07-01 09:40:29
 - This represents first access to API credentials
+
+<img width="1171" height="623" alt="image" src="https://github.com/user-attachments/assets/1be0de5f-01d3-41d7-b1ca-b3e6a271c9fb" />
+
+<img width="1170" height="578" alt="image" src="https://github.com/user-attachments/assets/f5250a0b-3803-467f-b036-7a09db250a08" />
 
 **Analysis:**
 The attacker accessed the OpenStack dashboard and immediately downloaded the openrc configuration file. This file contains:
@@ -145,6 +163,13 @@ This action represents the transition from web interface access to API-level com
 - Server response included: http://134.209.71.220/identity/v3/
 - Location field specified API version 3
 
+<img width="1168" height="566" alt="image" src="https://github.com/user-attachments/assets/ec3cab5a-7723-4852-b2a1-7d262eb73873" />
+
+<img width="1168" height="565" alt="image" src="https://github.com/user-attachments/assets/5a1dcb4a-cc45-4fdf-8675-dec57305caff" />
+
+<img width="1171" height="562" alt="image" src="https://github.com/user-attachments/assets/062e8d54-5109-4fad-9bfd-031f8ae2ebcd" />
+
+
 **Analysis:**
 Using the downloaded openrc credentials, the attacker made the first API call to OpenStack Keystone (identity service). The HTTP 300 response indicates multiple API versions available, but the server-provided location header directs to version 3.
 
@@ -161,6 +186,10 @@ This action marks the beginning of systematic API enumeration and resource disco
 - HTTP/1.1 200 OK response
 - JSON body contains project information
 - domain_id field confirmed as default project
+
+<img width="1167" height="598" alt="image" src="https://github.com/user-attachments/assets/b3d70227-decc-4875-ad89-cc1acec4b286" />
+
+<img width="1165" height="545" alt="image" src="https://github.com/user-attachments/assets/f97a5d12-8959-447b-aa5c-8888323c1200" />
 
 **Analysis:**
 The attacker queried the OpenStack Keystone projects endpoint, which returned all accessible projects. The response JSON included:
@@ -182,6 +211,8 @@ This project ID is critical for accessing cloud resources. The attacker now knew
 - Service type: Identity Service
 - Functionality: API client authentication and multi-tenant authorization
 - Manages user access to resources
+
+<img width="1036" height="455" alt="image" src="https://github.com/user-attachments/assets/7a329356-5faa-4f01-8b3f-70e8f5dfb0ab" />
 
 **Analysis:**
 Keystone is the authentication and authorization component of OpenStack. It provides:
@@ -208,6 +239,10 @@ The attacker leveraged Keystone to:
 - JSON response body contains service catalog
 - Endpoints section: interface=public, URL shown above
 - Service type: object-store
+
+<img width="1037" height="502" alt="image" src="https://github.com/user-attachments/assets/703256cb-f217-414a-826f-22dfb58e2a80" />
+
+<img width="1022" height="527" alt="image" src="https://github.com/user-attachments/assets/3eb38a9a-1f95-42d8-8ec5-02674f515528" />
 
 **Analysis:**
 The Keystone authentication response included the service catalog listing all available OpenStack services. The attacker identified:
@@ -236,6 +271,10 @@ Swift is OpenStack's object storage service, functionally similar to Amazon S3. 
 - JSON body contains: X-Account-Container-Count: 3
 - Container names listed in JSON array
 
+<img width="1166" height="562" alt="image" src="https://github.com/user-attachments/assets/557c98a7-9164-4183-838e-5789a2976aa9" />
+
+<img width="1168" height="617" alt="image" src="https://github.com/user-attachments/assets/9dad7ef6-ab32-4cb9-a230-c301234615d0" />
+
 **Analysis:**
 The attacker made a GET request to the Swift endpoint without specifying a container, which lists all available containers. The response revealed 3 containers holding different types of data:
 - **dev-files:** Development resources (non-sensitive)
@@ -257,6 +296,9 @@ The attacker identified user-data as the target for maximum impact.
 - Response: HTTP/1.1 200 OK
 - File transfer completed successfully
 
+<img width="1171" height="622" alt="image" src="https://github.com/user-attachments/assets/a2193020-778f-4fa3-a0a5-fa85f611f33c" />
+
+
 **Analysis:**
 The attacker directly accessed the user-data container and downloaded user-details.csv, a file containing sensitive employee information. The request path reveals:
 - Container: user-data
@@ -276,6 +318,10 @@ The successful 200 OK response confirms the file was accessible and downloaded w
 - CSV file contents enumeration
 - Manual count of data records
 - Each record includes: Name, Email, Phone, Employee ID
+
+<img width="1167" height="582" alt="image" src="https://github.com/user-attachments/assets/4c7c3f2b-30bd-4089-bec6-c2040943df1d" />
+
+<img width="1152" height="531" alt="image" src="https://github.com/user-attachments/assets/e21d1c69-f225-40fb-8c76-2bc2dac52e96" />
 
 **Analysis:**
 The downloaded file contained 28 employee records with the following information per record:
@@ -303,6 +349,9 @@ The downloaded file contained 28 employee records with the following information
 - Following HTTP stream of request
 - JSON body contains: "user": {"name": "Jellibean"}
 
+<img width="1103" height="587" alt="image" src="https://github.com/user-attachments/assets/9e11ee26-c76f-4117-9d29-ba984784d0ab" />
+
+
 **Analysis:**
 For persistence, the attacker created a new user account with administrative privileges. The account details:
 - **Username:** Jellibean
@@ -328,6 +377,11 @@ This account enables:
 - JSON body of POST request
 - "password": "P@$$word" field in user creation request
 
+<img width="1168" height="622" alt="image" src="https://github.com/user-attachments/assets/25921b99-a44f-4968-b4fc-51467bdad051" />
+
+<img width="1178" height="567" alt="image" src="https://github.com/user-attachments/assets/cf24bba6-6733-4d90-9a81-b3e7b78ac4d3" />
+
+
 **Analysis:**
 The attacker set a simple password for the persistence account. While this password is relatively weak, the account would still provide access to the cloud infrastructure after the initial compromise is discovered and remediated.
 
@@ -341,6 +395,8 @@ The attacker set a simple password for the persistence account. While this passw
 - OpenStack terminology: "local account" in context of Keystone users
 - Admin privileges confirmed through role assignments
 - Attack phase: Persistence
+
+<img width="1106" height="586" alt="image" src="https://github.com/user-attachments/assets/372030d0-f19a-4e94-83e0-3f563e5187bf" />
 
 **Analysis:**
 The attacker used the MITRE ATT&CK technique T1136.001 to maintain persistence:
