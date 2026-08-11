@@ -4,6 +4,9 @@
 
 A network forensics investigation of a compromised cloud infrastructure environment using PCAP analysis. The investigation focused on identifying attacker activity, tracing unauthorized access to OpenStack services, analyzing sensitive data access, and reconstructing the attack timeline.
 
+## Platform
+Hack The Box Room: Vantage
+
 ## Tools & Technologies
 
 * Wireshark
